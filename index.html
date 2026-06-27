@@ -2,9 +2,9 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éco-Gardiens - L'Archipel Perdu</title>
-    <!-- Intégration des bibliothèques PeerJS et QRCode via CDN -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Éco-Gardiens : L'Archipel Magique</title>
+    <!-- Bibliothèques CDN fiables pour le réseau et le QR Code -->
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
@@ -12,379 +12,498 @@
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
-        }
-        body {
-            background-color: #f0f4f8;
-            color: #2d3748;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
+        }
+        body {
+            background: #1a1c23;
+            color: #e2e8f0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            overflow-x: hidden;
         }
         
-        /* ÉCRAN PRINCIPAL (PC) */
+        /* ==================== CONFIGURATION PC ==================== */
         #pc-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            position: relative;
+        }
+        
+        /* Menu de connexion initial */
+        #setup-screen {
+            background: rgba(30, 41, 59, 0.85);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            border: 2px solid rgba(99, 102, 241, 0.3);
             text-align: center;
-            padding: 20px;
-            width: 100%;
-            max-width: 900px;
+            max-width: 450px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
         }
         h1 {
-            color: #4a5568;
-            margin-bottom: 5px;
             font-size: 2.2rem;
+            background: linear-gradient(to right, #6366f1, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
         }
-        .subtitle {
-            color: #718096;
-            margin-top: 0;
+        .desc {
+            color: #94a3b8;
+            font-size: 1rem;
             margin-bottom: 25px;
-        }
-        #setup-zone {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            display: inline-block;
-            margin-bottom: 20px;
+            line-height: 1.5;
         }
         #qrcode {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-            padding: 10px;
+            display: inline-block;
             background: white;
-            border-radius: 10px;
-        }
-        #gameCanvas {
-            background: linear-gradient(to bottom, #a2d2ff, #bde0fe);
-            border: 6px solid #white;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            display: none;
-            margin: 0 auto;
-        }
-
-        /* MANETTE (MOBILE) */
-        #mobile-view {
-            display: none;
-            width: 100%;
-            height: 100vh;
-            background: #2d3748;
-            color: white;
-            padding: 20px;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-        }
-        #mobile-view h2 {
-            margin-top: 10px;
-            font-size: 1.5rem;
-            color: #edf2f7;
-        }
-        #status {
-            font-size: 0.9rem;
-            color: #a0aec0;
-            background: rgba(0,0,0,0.2);
-            padding: 8px 15px;
-            border-radius: 50px;
+            padding: 15px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             margin-bottom: 20px;
         }
-        .dpad {
-            display: grid;
-            grid-template-columns: repeat(3, 90px);
-            grid-template-rows: repeat(3, 90px);
-            grid-gap: 15px;
-            margin-bottom: 40px;
+        .loader-text {
+            color: #6366f1;
+            font-weight: 600;
+            animation: pulse 1.5s infinite;
         }
-        .dpad-btn {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            border: none;
-            background: #4fd1c5;
-            color: white;
-            font-size: 2rem;
-            font-weight: bold;
+
+        /* Cadran de l'écran de jeu */
+        #game-container {
+            display: none;
+            position: relative;
+            width: 1024px;
+            height: 576px;
+            background: linear-gradient(to bottom, #1e293b, #0f172a);
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            border: 4px solid #334155;
+            overflow: hidden;
+        }
+        #gameCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+        #ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 6px 0 #319795;
-            transition: all 0.1s ease;
-            cursor: pointer;
-        }
-        .dpad-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 #319795;
-            background: #38b2ac;
-        }
-        .empty {
-            background: transparent;
+            justify-content: space-between;
             pointer-events: none;
+            z-index: 20;
+            font-family: monospace;
+        }
+        .ui-box {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+        }
+        .score-val {
+            color: #22c55e;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* ==================== CONFIGURATION MOBILE ==================== */
+        #mobile-view {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            background: #090d16;
+            flex-direction: column;
+            position: relative;
+            touch-action: none;
+        }
+        #mobile-header {
+            padding: 15px;
+            text-align: center;
+            background: #111827;
+            border-bottom: 1px solid #1f2937;
+            z-index: 5;
+        }
+        #mobile-header h2 {
+            font-size: 1.2rem;
+            color: #f3f4f6;
+        }
+        #mobile-status {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+        #canvas-drawing-zone {
+            flex-grow: 1;
+            width: 100%;
+            background: radial-gradient(circle at center, #111827 0%, #030712 100%);
+            position: relative;
+            cursor: crosshair;
+        }
+        .canvas-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 1.1rem;
+            text-align: center;
+            pointer-events: none;
+            line-height: 1.6;
+            width: 80%;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
         }
     </style>
 </head>
 <body>
 
-    <!-- INTERFACE PC -->
+    <!-- ==================== BLOC PC ==================== -->
     <div id="pc-view">
-        <h1>Éco-Gardiens : L'Archipel Perdu</h1>
-        <p class="subtitle">Expérience coopérative chill en duo</p>
-
-        <div id="setup-zone">
-            <h3 style="margin-top:0;">📱 Connecter le téléphone</h3>
-            <p style="font-size: 0.95rem; color: #4a5568;">Scannez ce QR Code avec le mobile pour l'utiliser comme manette :</p>
+        <div id="setup-screen">
+            <h1>🎨 Archipel Magique</h1>
+            <p class="desc">Un joueur dirige le Gardien au clavier sur le PC, l'autre <strong>dessine sur le mobile</strong> pour soigner l'île en temps réel.</p>
             <div id="qrcode"></div>
-            <p style="color: #718096; font-size: 0.85rem; margin-bottom: 0;">En attente de connexion du second joueur...</p>
+            <p class="loader-text">En attente de ta petite sœur...</p>
         </div>
 
-        <canvas id="gameCanvas" width="800" height="500"></canvas>
+        <div id="game-container">
+            <div id="ui-layer">
+                <div class="ui-box">🌸 Vitalité de l'Île : <span id="score-display" class="score-val">0%</span></div>
+                <div class="ui-box" style="color: #94a3b8;">PC : Flèches / ZQSD | Mobile : Dessine sur l'écran</div>
+            </div>
+            <canvas id="gameCanvas" width="1024" height="576"></canvas>
+        </div>
     </div>
 
-    <!-- INTERFACE MOBILE -->
+    <!-- ==================== BLOC MOBILE ==================== -->
     <div id="mobile-view">
-        <div>
-            <h2>Manette Éco-Gardien</h2>
-            <div id="status">Initialisation...</div>
+        <div id="mobile-header">
+            <h2>Ardoise Magique de l'Eau</h2>
+            <div id="mobile-status">Connexion en cours...</div>
         </div>
-
-        <div class="dpad">
-            <div class="empty"></div>
-            <button class="dpad-btn" id="btn-up">▲</button>
-            <div class="empty"></div>
-            
-            <button class="dpad-btn" id="btn-left">◀</button>
-            <div class="empty"></div>
-            <button class="dpad-btn" id="btn-right">▶</button>
-            
-            <div class="empty"></div>
-            <button class="dpad-btn" id="btn-down">▼</button>
-            <div class="empty"></div>
+        <div id="canvas-drawing-zone">
+            <div class="canvas-hint" id="mobile-hint">Glisse ton doigt ici pour dessiner des vagues magiques sur le PC ! ✨</div>
+            <canvas id="mobileCanvas"></canvas>
         </div>
-        
-        <div style="font-size: 0.8rem; color: #718096; margin-bottom: 10px;">Laissez cet écran ouvert pour jouer</div>
     </div>
 
+    <!-- ==================== LOGIQUE DU JEU ==================== -->
     <script>
-        // Détection du mode (PC ou Mobile) selon la présence du paramètre "room" dans l'URL
         const urlParams = new URLSearchParams(window.location.search);
-        const targetRoom = urlParams.get('room');
+        const roomIdParam = urlParams.get('room');
 
-        if (targetRoom) {
-            // === MODE MOBILE (MANETTE) ===
+        if (roomIdParam) {
+            // ==================== CODE MODE MOBILE ====================
             document.getElementById('pc-view').style.display = 'none';
             document.getElementById('mobile-view').style.display = 'flex';
-            document.body.style.backgroundColor = '#2d3748';
 
-            const statusDiv = document.getElementById('status');
-            statusDiv.innerText = "Connexion au PC...";
+            const mCanvas = document.getElementById('mobileCanvas');
+            const mCtx = mCanvas.getContext('2d');
+            const zone = document.getElementById('canvas-drawing-zone');
+            const statusText = document.getElementById('mobile-status');
+            const hintText = document.getElementById('mobile-hint');
 
+            // Ajuster la taille du canvas mobile à l'écran tactile
+            function resizeMobileCanvas() {
+                mCanvas.width = zone.clientWidth;
+                mCanvas.height = zone.clientHeight;
+            }
+            window.addEventListener('resize', resizeMobileCanvas);
+            resizeMobileCanvas();
+
+            // Initialisation de la connexion PeerJS vers le PC
             const peer = new Peer();
             let conn = null;
 
             peer.on('open', () => {
-                conn = peer.connect(targetRoom);
-                
+                conn = peer.connect(roomIdParam);
                 conn.on('open', () => {
-                    statusDiv.innerText = "🟢 Connecté à l'archipel !";
-                    statusDiv.style.color = "#4fd1c5";
-                    statusDiv.style.background = "rgba(79, 209, 197, 0.1)";
-                });
-
-                conn.on('close', () => {
-                    statusDiv.innerText = "🔴 Déconnecté";
-                    statusDiv.style.color = "#fc8181";
+                    statusText.innerText = "🟢 Connectée au PC ! Dessine !";
+                    statusText.style.color = "#10b981";
+                    hintText.style.opacity = "0.5";
                 });
             });
 
-            // Envoi des directions en maintenant appuyé ou par clic
-            function sendAction(direction) {
-                if (conn && conn.open) {
-                    conn.send({ action: 'move', dir: direction });
-                }
+            // Enregistrement et transmission du dessin tactile
+            let isDrawing = false;
+
+            function getTouchPos(e) {
+                const rect = mCanvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    // Envoyer des coordonnées normalisées (en % de 0 à 1) pour s'adapter à la taille de l'écran du PC
+                    x: (clientX - rect.left) / mCanvas.width,
+                    y: (clientY - rect.top) / mCanvas.height
+                };
             }
 
-            // Gestionnaires d'événements tactiles pour une réactivité optimale
-            const directions = ['up', 'down', 'left', 'right'];
-            directions.forEach(dir => {
-                const btn = document.getElementById(`btn-${dir}`);
-                let intervalId = null;
+            function startDraw(e) {
+                isDrawing = true;
+                hintText.style.display = 'none';
+                const pos = getTouchPos(e);
+                sendDrawPoint(pos.x, pos.y, true);
+            }
 
-                const startMoving = (e) => {
-                    e.preventDefault();
-                    sendAction(dir);
-                    // Répète le mouvement tant qu'on reste appuyé
-                    intervalId = setInterval(() => sendAction(dir), 100);
-                };
+            function moveDraw(e) {
+                if (!isDrawing) return;
+                const pos = getTouchPos(e);
+                sendDrawPoint(pos.x, pos.y, false);
+            }
 
-                const stopMoving = () => {
-                    clearInterval(intervalId);
-                };
+            function stopDraw() {
+                isDrawing = false;
+            }
 
-                btn.addEventListener('touchstart', startMoving);
-                btn.addEventListener('touchend', stopMoving);
-                btn.addEventListener('mousedown', startMoving);
-                btn.addEventListener('mouseup', stopMoving);
-                btn.addEventListener('mouseleave', stopMoving);
-            });
-
-        } else {
-            // === MODE PC (ÉCRAN DE JEU) ===
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-            
-            // État du jeu
-            let playerPC = { x: 300, y: 250, size: 20, color: '#319795', score: 0 };
-            let playerMobile = { x: 500, y: 250, size: 20, color: '#3182ce' };
-            let stars = [];
-            
-            // Générer des étoiles/pollutions à nettoyer
-            function spawnStars() {
-                stars = [];
-                for(let i=0; i<5; i++) {
-                    stars.push({
-                        x: Math.random() * (canvas.width - 60) + 30,
-                        y: Math.random() * (canvas.height - 60) + 30,
-                        size: 12,
-                        active: true
+            function sendDrawPoint(nx, ny, isNewStroke) {
+                if (conn && conn.open) {
+                    conn.send({
+                        type: 'draw',
+                        x: nx,
+                        y: ny,
+                        start: isNewStroke
                     });
                 }
             }
-            spawnStars();
 
-            // Génération de la Room PeerJS
+            // Événements souris et tactiles
+            mCanvas.addEventListener('mousedown', startDraw);
+            mCanvas.addEventListener('mousemove', moveDraw);
+            window.addEventListener('mouseup', stopDraw);
+
+            mCanvas.addEventListener('touchstart', startDraw, { passive: false });
+            mCanvas.addEventListener('touchmove', moveDraw, { passive: false });
+            window.addEventListener('touchend', stopDraw);
+
+        } else {
+            // ==================== CODE MODE PC ====================
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const scoreDisplay = document.getElementById('score-display');
+
+            // Variables d'état du jeu
+            let score = 0;
+            let player = { x: 200, y: 350, vx: 0, vy: 0, size: 16, speed: 4 };
+            let magicLines = []; // Traits dessinés par le mobile
+            let pollutions = []; // Zones violettes à nettoyer
+
+            // Génération de vagues de pollution
+            function spawnPollution() {
+                pollutions = [];
+                for(let i=0; i<6; i++) {
+                    pollutions.push({
+                        x: 150 + Math.random() * 700,
+                        y: 120 + Math.random() * 320,
+                        radius: 35 + Math.random() * 20,
+                        health: 100, // Doit tomber à 0 pour être nettoyé
+                        color: `rgba(${147 + Math.random()*30}, 51, 234, ` // Teinte violette fluctuante
+                    });
+                }
+            }
+            spawnPollution();
+
+            // Création du serveur de salon P2P local
             const roomId = 'eco-' + Math.random().toString(36).substr(2, 9);
             const peer = new Peer(roomId);
 
             peer.on('open', () => {
-                // Construction du lien unique pointant vers ce même fichier avec le paramètre room
-                const mobileUrl = window.location.origin + window.location.pathname + '?room=' + roomId;
-                
-                // Génération du QR Code
+                const joinUrl = window.location.origin + window.location.pathname + '?room=' + roomId;
                 new QRCode(document.getElementById("qrcode"), {
-                    text: mobileUrl,
+                    text: joinUrl,
                     width: 180,
                     height: 180,
-                    colorDark : "#2d3748",
+                    colorDark : "#1e1b4b",
                     colorLight : "#ffffff"
                 });
             });
 
-            // Attente de la connexion du téléphone
-            peer.on('connection', (conn) => {
-                document.getElementById('setup-zone').style.display = 'none';
-                canvas.style.display = 'block';
-                
-                // Lancement de la boucle de jeu
+            // Quand le téléphone se connecte
+            peer.on('connection', (connection) => {
+                document.getElementById('setup-screen').style.display = 'none';
+                document.getElementById('game-container').style.display = 'block';
+
+                // Démarrage de la boucle graphique
                 setInterval(gameLoop, 1000 / 60);
 
-                // Écoute des actions du mobile
-                conn.on('data', (data) => {
-                    if (data.action === 'move') {
-                        const speed = 8;
-                        if (data.dir === 'up' && playerMobile.y > playerMobile.size) playerMobile.y -= speed;
-                        if (data.dir === 'down' && playerMobile.y < canvas.height - playerMobile.size) playerMobile.y += speed;
-                        if (data.dir === 'left' && playerMobile.x > playerMobile.size) playerMobile.x -= speed;
-                        if (data.dir === 'right' && playerMobile.x < canvas.width - playerMobile.size) playerMobile.x += speed;
+                let lastPt = null;
+
+                connection.on('data', (data) => {
+                    if (data.type === 'draw') {
+                        // Conversion des coordonnées relatives du mobile en pixels absolus sur le PC
+                        const absX = data.x * canvas.width;
+                        const absY = data.y * canvas.height;
+
+                        if (data.start || !lastPt) {
+                            lastPt = { x: absX, y: absY };
+                        }
+
+                        magicLines.push({
+                            x1: lastPt.x,
+                            y1: lastPt.y,
+                            x2: absX,
+                            y2: absY,
+                            life: 1.0 // Durée de vie du trait magique (s'estompe petit à petit)
+                        });
+
+                        lastPt = { x: absX, y: absY };
+
+                        // Détection immédiate si le dessin touche une zone polluée
+                        pollutions.forEach(p => {
+                            let d = Math.hypot(absX - p.x, absY - p.y);
+                            if (d < p.radius + 10 && p.health > 0) {
+                                p.health -= 3; // Le dessin blesse/nettoie la pollution
+                                if (p.health <= 0) {
+                                    score += 15;
+                                    scoreDisplay.innerText = score + " XP";
+                                }
+                            }
+                        });
                     }
                 });
             });
 
-            // Contrôles du joueur PC (Clavier : ZQSD ou Flèches)
+            // Clavier Joueur PC
             let keys = {};
             window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
             window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-            function updatePCPlayer() {
-                const speed = 5;
-                if ((keys['z'] || keys['arrowup']) && playerPC.y > playerPC.size) playerPC.y -= speed;
-                if ((keys['s'] || keys['arrowdown']) && playerPC.y < canvas.height - playerPC.size) playerPC.y += speed;
-                if ((keys['q'] || keys['arrowleft']) && playerPC.x > playerPC.size) playerPC.x -= speed;
-                if ((keys['d'] || keys['arrowright']) && playerPC.x < canvas.width - playerPC.size) playerPC.x += speed;
-            }
+            function updateGame() {
+                // Mouvement joueur PC
+                player.vx = 0; player.vy = 0;
+                if (keys['z'] || keys['arrowup']) player.vy = -player.speed;
+                if (keys['s'] || keys['arrowdown']) player.vy = player.speed;
+                if (keys['q'] || keys['arrowleft']) player.vx = -player.speed;
+                if (keys['d'] || keys['arrowright']) player.vx = player.speed;
 
-            // Vérification des collisions coopératives pour collecter les objectifs
-            function checkCollisions() {
-                let allCollected = true;
-                
-                stars.forEach(star => {
-                    if (star.active) {
-                        allCollected = false;
-                        
-                        // Distance avec joueur PC
-                        let distPC = Math.hypot(playerPC.x - star.x, playerPC.y - star.y);
-                        // Distance avec joueur Mobile
-                        let distMobile = Math.hypot(playerMobile.x - star.x, playerMobile.y - star.y);
-                        
-                        // L'étoile est nettoyée si l'un des deux esprits passe dessus
-                        if (distPC < playerPC.size + star.size || distMobile < playerMobile.size + star.size) {
-                            star.active = false;
-                            playerPC.score += 10;
-                        }
+                player.x += player.vx;
+                player.y += player.vy;
+
+                // Contraintes de bordures
+                if (player.x < 50) player.x = 50;
+                if (player.x > canvas.width - 50) player.x = canvas.width - 50;
+                if (player.y < 80) player.y = 80;
+                if (player.y > canvas.height - 80) player.y = canvas.height - 80;
+
+                // Diminution de la vie des lignes dessinées
+                magicLines.forEach(line => {
+                    line.life -= 0.008; // S'efface en environ 2 secondes
+                });
+                magicLines = magicLines.filter(line => line.life > 0);
+
+                // Si le joueur PC marche sur les lignes magiques actives, il gagne un boost ou de la vie
+                magicLines.forEach(line => {
+                    let distToPlayer = Math.hypot(player.x - line.x2, player.y - line.y2);
+                    if (distToPlayer < player.size + 15) {
+                        score += 0.05; // Récompense l'action combinée de marcher là où elle dessine
+                        scoreDisplay.innerText = Math.floor(score) + " XP";
                     }
                 });
 
-                if (allCollected && stars.length > 0) {
-                    spawnStars(); // On fait réapparaître de nouvelles fleurs/esprits à soigner
+                // Vérifier si toutes les pollutions sont nettoyées
+                if (pollutions.every(p => p.health <= 0)) {
+                    spawnPollution();
+                    score += 50;
                 }
             }
 
-            // Dessin général du jeu
-            function draw() {
+            function drawGame() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Dessin du décor de fond (effet d'herbe ou d'archipel)
-                ctx.fillStyle = "rgba(255,255,255,0.15)";
-                ctx.fillRect(20, 20, canvas.width - 40, canvas.height - 40);
+                // --- 1. DESSIN DE L'ARCHIPEL (GRAPHISMES AMBIANCE NATURE COULEURS PASTELES) ---
+                // Ciel dégradé interne géré par CSS, ici on pose l'île flottante centrale
+                ctx.beginPath();
+                ctx.ellipse(canvas.width/2, canvas.height/2 + 60, 420, 160, 0, 0, Math.PI * 2);
+                ctx.fillStyle = "#1e3a5f";
+                ctx.fill();
 
-                // Dessin des objectifs (petites fleurs / orbes de nature)
-                stars.forEach(star => {
-                    if (star.active) {
+                ctx.beginPath();
+                ctx.ellipse(canvas.width/2, canvas.height/2 + 50, 400, 140, 0, 0, Math.PI * 2);
+                ctx.fillStyle = "#064e3b"; // Île verte émeraude profonde
+                ctx.fill();
+
+                // Arbre Sacré central flétri
+                ctx.fillStyle = "#1e293b";
+                ctx.fillRect(canvas.width/2 - 15, canvas.height/2 - 60, 30, 120);
+                ctx.beginPath();
+                ctx.arc(canvas.width/2, canvas.height/2 - 60, 50, 0, Math.PI*2);
+                ctx.fillStyle = "rgba(16, 185, 129, 0.2)";
+                ctx.fill();
+
+                // --- 2. DESSIN DE LA POLLUTION VIOLETTE ---
+                pollutions.forEach(p => {
+                    if (p.health > 0) {
                         ctx.beginPath();
-                        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-                        ctx.fillStyle = '#ffb703';
+                        ctx.arc(p.x, p.y, p.radius * (p.health/100), 0, Math.PI * 2);
+                        ctx.fillStyle = p.color + (0.3 + (p.health/200)) + ")";
                         ctx.fill();
-                        // Petit effet brillant au centre
+                        
+                        // Noyau sombre de la pollution
                         ctx.beginPath();
-                        ctx.arc(star.x, star.y, star.size / 2, 0, Math.PI * 2);
-                        ctx.fillStyle = '#fff';
+                        ctx.arc(p.x, p.y, (p.radius/2) * (p.health/100), 0, Math.PI * 2);
+                        ctx.fillStyle = "rgba(76, 29, 149, 0.8)";
+                        ctx.fill();
+                    } else {
+                        // Dessine des fleurs écloses là où la pollution est morte
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+                        ctx.fillStyle = "#f472b6"; // Fleurs roses
                         ctx.fill();
                     }
                 });
 
-                // Dessin du Joueur PC (Esprit Vert/Turquoise de la Terre)
-                ctx.beginPath();
-                ctx.arc(playerPC.x, playerPC.y, playerPC.size, 0, Math.PI * 2);
-                ctx.fillStyle = playerPC.color;
-                ctx.fill();
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = playerPC.color;
-                
-                // Dessin du Joueur Mobile (Esprit Bleu de l'Eau)
-                ctx.beginPath();
-                ctx.arc(playerMobile.x, playerMobile.y, playerMobile.size, 0, Math.PI * 2);
-                ctx.fillStyle = playerMobile.color;
-                ctx.fill();
-                ctx.shadowColor = playerMobile.color;
-                ctx.shadowBlur = 0; // reset
+                // --- 3. DESSIN DES TRAITS MAGIQUES (DESSIN MOBILE) ---
+                ctx.lineWidth = 6;
+                ctx.lineCap = "round";
+                magicLines.forEach(line => {
+                    ctx.beginPath();
+                    ctx.moveTo(line.x1, line.y1);
+                    ctx.lineTo(line.x2, line.y2);
+                    // Effet de dégradé néon brillant à l'effacement
+                    ctx.strokeStyle = `rgba(56, 189, 248, ${line.life})`;
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = "#38bdf8";
+                    ctx.stroke();
+                });
+                ctx.shadowBlur = 0; // Reset ombre
 
-                // Affichage du score / indicateur de coopération
-                ctx.fillStyle = "#4a5568";
-                ctx.font = "bold 16px sans-serif";
-                ctx.fillText("Énergie de l'Archipel : " + playerPC.score + " XP", 30, 40);
-                ctx.font = "14px sans-serif";
-                ctx.fillText("Clavier (PC) : ZQSD / Flèches  |  Téléphone : D-Pad Tactile", canvas.width - 400, 40);
+                // --- 4. DESSIN DU GARDIEN DE LA TERRE (PC) ---
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+                ctx.fillStyle = "#34d399"; // Gardien Vert Menthe Lumineux
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = "#34d399";
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Yeux du petit esprit
+                ctx.fillStyle = "#0f172a";
+                ctx.beginPath();
+                ctx.arc(player.x - 5, player.y - 2, 2, 0, Math.PI * 2);
+                ctx.arc(player.x + 5, player.y - 2, 2, 0, Math.PI * 2);
+                ctx.fill();
             }
 
-            // Boucle principale
             function gameLoop() {
-                updatePCPlayer();
-                checkCollisions();
-                draw();
+                updateGame();
+                drawGame();
             }
         }
     </script>
